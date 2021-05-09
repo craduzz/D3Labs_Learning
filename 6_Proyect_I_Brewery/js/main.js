@@ -1,6 +1,9 @@
 /*
 *    main.js
 */
+/*
+*    main.js
+*/
 var margin = {top:10, bottom:100, left:100, right: 10};
 var width = 600;
 var height = 400;
@@ -15,46 +18,40 @@ var g = svg.append("g")
 
 
 
-var buildings = d3.json("data/buildings.json").then((data)=>{
+d3.json("data/revenues.json").then((data)=>{
 
 
-    var n_list = data.map((d) => {return d.name;});
+    var m_list = data.map((d) => {return d.month;});
 
-    console.log(n_list);
+    var max = d3.max(data,(d)=>{return d.revenue});
+    console.log(max);
 
     var x = d3.scaleBand()
-        .domain(n_list)
-        .range([0,600])
+        .domain(m_list)
+        .range([0,width])
         .paddingInner(0.3)
         .paddingOuter(0.3);
-    
-    var y = d3.scaleLinear()
-        .domain([828,0])
-        .range([0,400]);
 
-    var colour = d3.scaleOrdinal()
-        .domain(n_list)
-        .range(d3.schemeSet3);
+    var y = d3.scaleLinear()
+        .domain([max,0])
+        .range([0,height]);
 
     var rect = svg.selectAll("rect")
         .data(data);
 
     rect.enter()
         .append("rect")
-            .attr("x",(d)=>{
-                console.log(x(d.name));
-                return x(d.name)+100;
-            })
-            .attr("y",(d) => {
-                return height-y(d.height);
-            })
-            .attr("width",x.bandwidth())
-            .attr("height",(d)=>{
-                return y(d.height);
-            })
-            .attr("fill",(d) =>{
-                return colour(d.name);
-            });
+        .attr("x",(d)=>{
+            return x(d.month)+margin.left;
+        })
+        .attr("y",(d) => {
+            return y(d.revenue);
+        })
+        .attr("width",x.bandwidth())
+        .attr("height",(d)=>{
+            return height-y(d.revenue)+margin.top;
+        })
+        .attr("fill","orange");
 
     var bottomAxis = d3.axisBottom(x);
     g.append("g")
@@ -62,15 +59,13 @@ var buildings = d3.json("data/buildings.json").then((data)=>{
         .attr("transform","translate(0, "+height+")")
         .call(bottomAxis)
         .selectAll("text")
-        .attr("transform","rotate(-20)")
-        .attr("x","-5")
-        .attr("y","10")
-        .attr("text-anchor","end");
+        .attr("text-anchor","middle");
 
     var leftAxis = d3.axisLeft(y)
-        .ticks(5)
+        .ticks(12)
         .tickFormat((d)=>{
-            return d + "m";
+            console.log(d);
+            return "$" + d + "K";
         });
     g.append("g")
         .attr("class","left axis")
@@ -80,11 +75,10 @@ var buildings = d3.json("data/buildings.json").then((data)=>{
     g.append("text")
         .attr("class", "x axis-label")
         .attr("x", width/2)
-        .attr("y", height +140)
+        .attr("y", height +50)
         .attr("font-size","20px")
         .attr("text-anchor","middle")
-        .attr("transform", "translate(0,-40)")
-        .text("The world's tallest buildings");
+        .text("Month");
 
     g.append("text")
         .attr("class", "y axis-label")
@@ -93,9 +87,10 @@ var buildings = d3.json("data/buildings.json").then((data)=>{
         .attr("font-size", "20px")
         .attr("text-anchor", "middle")
         .attr("transform", "rotate(-90)")
-        .text("Height (m)");
+        .text("Revenue (dlls.)");
 
 }).catch((error)=>{
     console.log(error);
 
 });
+
