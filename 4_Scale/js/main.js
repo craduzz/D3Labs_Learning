@@ -34,7 +34,7 @@ var buildings = d3.json("data/buildings.json").then((data)=>{
 
     rect.enter()
         .append("rect")
-            .attr("x",(d,i)=>{
+            .attr("x",(d)=>{
                 return x(d.name);
             })
             .attr("y",(d) => {
